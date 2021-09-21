@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-sitemap` will be documented in this file
 
+## Forked from 6.0.5 - 1.0.0
+
+- Removed constraint for PHP8. Removed support for SitemapGenerator.
+
 ## 6.0.5 - 2021-08-11
 
 - fix crawler integration (#407)

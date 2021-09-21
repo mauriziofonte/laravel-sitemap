@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sitemap\Tags;
+namespace Mfonte\Sitemap\Tags;
 
 class Alternate
 {
@@ -8,7 +8,7 @@ class Alternate
 
     public string $url;
 
-    public static function create(string $url, string $locale = ''): static
+    public static function create(string $url, string $locale = '')
     {
         return new static($url, $locale);
     }
@@ -20,14 +20,14 @@ class Alternate
         $this->setLocale($locale);
     }
 
-    public function setLocale(string $locale = ''): static
+    public function setLocale(string $locale = '')
     {
         $this->locale = $locale;
 
         return $this;
     }
 
-    public function setUrl(string $url = ''): static
+    public function setUrl(string $url = '')
     {
         $this->url = $url;
 

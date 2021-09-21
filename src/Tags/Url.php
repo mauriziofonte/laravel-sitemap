@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sitemap\Tags;
+namespace Mfonte\Sitemap\Tags;
 
 use Carbon\Carbon;
 use DateTimeInterface;
@@ -17,16 +17,19 @@ class Url extends Tag
 
     public string $url;
 
-    public Carbon $lastModificationDate;
+    /** @var Carbon */
+    public $lastModificationDate;
 
-    public string $changeFrequency;
+    /** @var string */
+    public $changeFrequency;
 
-    public float $priority = 0.8;
+    /** @var float */
+    public $priority = 0.8;
 
     /** @var \Spatie\Sitemap\Tags\Alternate[] */
-    public array $alternates = [];
+    public $alternates = [];
 
-    public static function create(string $url): static
+    public static function create(string $url)
     {
         return new static($url);
     }
@@ -40,35 +43,35 @@ class Url extends Tag
         $this->changeFrequency = static::CHANGE_FREQUENCY_DAILY;
     }
 
-    public function setUrl(string $url = ''): static
+    public function setUrl(string $url = '')
     {
         $this->url = $url;
 
         return $this;
     }
 
-    public function setLastModificationDate(DateTimeInterface $lastModificationDate): static
+    public function setLastModificationDate(DateTimeInterface $lastModificationDate)
     {
         $this->lastModificationDate = Carbon::instance($lastModificationDate);
 
         return $this;
     }
 
-    public function setChangeFrequency(string $changeFrequency): static
+    public function setChangeFrequency(string $changeFrequency)
     {
         $this->changeFrequency = $changeFrequency;
 
         return $this;
     }
 
-    public function setPriority(float $priority): static
+    public function setPriority(float $priority)
     {
         $this->priority = max(0, min($priority, 1));
 
         return $this;
     }
 
-    public function addAlternate(string $url, string $locale = ''): static
+    public function addAlternate(string $url, string $locale = '')
     {
         $this->alternates[] = new Alternate($url, $locale);
 
@@ -80,7 +83,12 @@ class Url extends Tag
         return parse_url($this->url, PHP_URL_PATH) ?? '';
     }
 
-    public function segments(?int $index = null): array | string | null
+    /**
+     * @param integer|null $index
+     *
+     * @return array|string|null
+     */
+    public function segments(?int $index = null)
     {
         $segments = collect(explode('/', $this->path()))
             ->filter(function ($value) {

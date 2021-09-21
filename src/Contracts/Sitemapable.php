@@ -1,10 +1,13 @@
 <?php
 
-namespace Spatie\Sitemap\Contracts;
+namespace Mfonte\Sitemap\Contracts;
 
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Tags\Url;
 
 interface Sitemapable
 {
-    public function toSitemapTag(): Url | string | array;
+    /**
+     * @return Url|string|array
+     */
+    public function toSitemapTag();
 }

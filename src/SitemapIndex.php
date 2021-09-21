@@ -1,25 +1,28 @@
 <?php
 
-namespace Spatie\Sitemap;
+namespace Mfonte\Sitemap;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Sitemap\Tags\Sitemap;
-use Spatie\Sitemap\Tags\Tag;
+use Mfonte\Sitemap\Tags\Sitemap;
+use Mfonte\Sitemap\Tags\Tag;
 
 class SitemapIndex implements Responsable, Renderable
 {
     /** @var \Spatie\Sitemap\Tags\Sitemap[] */
     protected array $tags = [];
 
-    public static function create(): static
+    public static function create()
     {
         return new static();
     }
 
-    public function add(string | Sitemap $tag): static
+    /**
+     * @param $tag string|Sitemap
+     */
+    public function add($tag)
     {
         if (is_string($tag)) {
             $tag = Sitemap::create($tag);
@@ -51,14 +54,14 @@ class SitemapIndex implements Responsable, Renderable
             ->render();
     }
 
-    public function writeToFile(string $path): static
+    public function writeToFile(string $path)
     {
         file_put_contents($path, $this->render());
 
         return $this;
     }
 
-    public function writeToDisk(string $disk, string $path): static
+    public function writeToDisk(string $disk, string $path)
     {
         Storage::disk($disk)->put($path, $this->render());
 

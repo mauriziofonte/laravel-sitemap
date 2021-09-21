@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sitemap\Tags;
+namespace Mfonte\Sitemap\Tags;
 
 abstract class Tag
 {

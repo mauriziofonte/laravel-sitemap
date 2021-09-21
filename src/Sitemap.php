@@ -1,26 +1,29 @@
 <?php
 
-namespace Spatie\Sitemap;
+namespace Mfonte\Sitemap;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Sitemap\Contracts\Sitemapable;
-use Spatie\Sitemap\Tags\Tag;
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Contracts\Sitemapable;
+use Mfonte\Sitemap\Tags\Tag;
+use Mfonte\Sitemap\Tags\Url;
 
 class Sitemap implements Responsable, Renderable
 {
     /** @var \Spatie\Sitemap\Tags\Url[] */
     protected array $tags = [];
 
-    public static function create(): static
+    public static function create()
     {
         return new static();
     }
 
-    public function add(string | Url | Sitemapable | iterable $tag): static
+    /**
+     * @param $tag string|Url|Sitemapable
+     */
+    public function add($tag)
     {
         if (is_object($tag) && array_key_exists(Sitemapable::class, class_implements($tag))) {
             $tag = $tag->toSitemapTag();
@@ -71,14 +74,14 @@ class Sitemap implements Responsable, Renderable
             ->render();
     }
 
-    public function writeToFile(string $path): static
+    public function writeToFile(string $path)
     {
         file_put_contents($path, $this->render());
 
         return $this;
     }
 
-    public function writeToDisk(string $disk, string $path): static
+    public function writeToDisk(string $disk, string $path)
     {
         Storage::disk($disk)->put($path, $this->render());
 

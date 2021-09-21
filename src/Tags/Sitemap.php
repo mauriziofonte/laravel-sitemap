@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Sitemap\Tags;
+namespace Mfonte\Sitemap\Tags;
 
 use Carbon\Carbon;
 use DateTimeInterface;
@@ -9,9 +9,10 @@ class Sitemap extends Tag
 {
     public string $url;
 
-    public Carbon $lastModificationDate;
+    /** @var Carbon */
+    public $lastModificationDate;
 
-    public static function create(string $url): static
+    public static function create(string $url)
     {
         return new static($url);
     }
@@ -23,14 +24,14 @@ class Sitemap extends Tag
         $this->lastModificationDate = Carbon::now();
     }
 
-    public function setUrl(string $url = ''): static
+    public function setUrl(string $url = '')
     {
         $this->url = $url;
 
         return $this;
     }
 
-    public function setLastModificationDate(DateTimeInterface $lastModificationDate): static
+    public function setLastModificationDate(DateTimeInterface $lastModificationDate)
     {
         $this->lastModificationDate = Carbon::instance($lastModificationDate);
 

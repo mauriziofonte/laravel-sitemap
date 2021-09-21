@@ -1,8 +1,7 @@
 <?php
 
-namespace Spatie\Sitemap;
+namespace Mfonte\Sitemap;
 
-use Spatie\Crawler\Crawler;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -12,14 +11,6 @@ class SitemapServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('laravel-sitemap')
-            ->hasConfigFile()
             ->hasViews();
-    }
-
-    public function packageRegistered(): void
-    {
-        $this->app->when(SitemapGenerator::class)
-            ->needs(Crawler::class)
-            ->give(static fn (): Crawler => Crawler::create(config('sitemap.guzzle_options')));
     }
 }
