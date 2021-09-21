@@ -19,7 +19,7 @@
             "email": "maurizio@mauriziofonte.it",
             "homepage": "https://www.mauriziofonte.it",
             "role": "Developer"
-        },
+        }
     ],
     "require": {
         "php": "^7.4",
