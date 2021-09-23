@@ -13,7 +13,7 @@ use Mfonte\Sitemap\Tags\Url;
 class Sitemap implements Responsable, Renderable
 {
     /** @var \Spatie\Sitemap\Tags\Url[] */
-    protected array $tags = [];
+    protected $tags = [];
 
     public static function create()
     {
@@ -65,12 +65,28 @@ class Sitemap implements Responsable, Renderable
         return (bool) $this->getUrl($url);
     }
 
+    public function hasImages() : bool
+    {
+        return (bool) collect($this->tags)->first(function (Tag $tag) {
+            return $tag->getType() === 'url' && !empty($tag->images);
+        });
+    }
+
+    public function hasNews() : bool
+    {
+        return (bool) collect($this->tags)->first(function (Tag $tag) {
+            return $tag->getType() === 'url' && !empty($tag->news);
+        });
+    }
+
     public function render(): string
     {
         $tags = collect($this->tags)->unique('url')->filter();
+        $hasImages = $this->hasImages();
+        $hasNews = $this->hasNews();
 
         return view('sitemap::sitemap')
-            ->with(compact('tags'))
+            ->with(compact('tags', 'hasImages', 'hasNews'))
             ->render();
     }
 

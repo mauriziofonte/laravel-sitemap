@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Sitemap\Test;
+namespace Mfonte\Sitemap\Test;
 
-use Spatie\Sitemap\Tags\Alternate;
+use Mfonte\Sitemap\Tags\Alternate;
 
 class AlternateTest extends TestCase
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\Sitemap\Test;
+namespace Mfonte\Sitemap\Test;
 
 use Carbon\Carbon;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Spatie\Sitemap\SitemapServiceProvider;
+use Mfonte\Sitemap\SitemapServiceProvider;
 use Spatie\Snapshots\MatchesSnapshots;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 

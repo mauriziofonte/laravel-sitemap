@@ -1,11 +1,12 @@
 <?php
 
-namespace Spatie\Sitemap\Test;
+namespace Mfonte\Sitemap\Test;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Sitemap\Contracts\Sitemapable;
-use Spatie\Sitemap\Sitemap;
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Contracts\Sitemapable;
+use Mfonte\Sitemap\Sitemap;
+use Mfonte\Sitemap\Tags\Url;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -126,6 +127,41 @@ class SitemapTest extends TestCase
     }
 
     /** @test */
+    public function it_can_determine_if_it_contains_urls_with_images()
+    {
+        $url = new Url('/page10');
+        $url->addImage('/imageUrl');
+
+        $this->sitemap->add($url);
+
+        $this->assertTrue($this->sitemap->hasImages());
+    }
+
+    /** @test */
+    public function it_can_determine_if_it_contains_urls_with_news()
+    {
+        $url = new Url('/page10');
+        $url->addNews('defaultName', 'defaultLanguage', Carbon::now()->subDays(3), 'defaultTitle');
+
+        $this->sitemap->add($url);
+
+        $this->assertTrue($this->sitemap->hasNews());
+    }
+
+    /** @test */
+    public function it_can_determine_if_it_contains_urls_with_images_and_news()
+    {
+        $url = new Url('/page10');
+        $url->addNews('defaultName', 'defaultLanguage', Carbon::now()->subDays(3), 'defaultTitle');
+        $url->addImage('/imageUrl');
+
+        $this->sitemap->add($url);
+
+        $this->assertTrue($this->sitemap->hasImages());
+        $this->assertTrue($this->sitemap->hasNews());
+    }
+
+    /** @test */
     public function it_can_get_a_specific_url()
     {
         $this->sitemap->add('/page1');
@@ -183,19 +219,19 @@ class SitemapTest extends TestCase
     {
         $this->sitemap
             ->add(new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return '/';
                 }
             })
             ->add(new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return Url::create('/home');
                 }
             })
             ->add(new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return [
                         'blog/post-1',
@@ -212,19 +248,19 @@ class SitemapTest extends TestCase
     {
         $this->sitemap->add(collect([
             new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return 'blog/post-1';
                 }
             },
             new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return 'blog/post-2';
                 }
             },
             new class implements Sitemapable {
-                public function toSitemapTag(): Url | string | array
+                public function toSitemapTag()
                 {
                     return 'blog/post-3';
                 }

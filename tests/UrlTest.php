@@ -1,10 +1,12 @@
 <?php
 
-namespace Spatie\Sitemap\Test;
+namespace Mfonte\Sitemap\Test;
 
 use Carbon\Carbon;
-use Spatie\Sitemap\Tags\Alternate;
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Tags\Image;
+use Mfonte\Sitemap\Tags\News;
+use Mfonte\Sitemap\Tags\Alternate;
+use Mfonte\Sitemap\Tags\Url;
 
 class UrlTest extends TestCase
 {
@@ -90,6 +92,79 @@ class UrlTest extends TestCase
         $this->url->addAlternate($url, $locale);
 
         $this->assertEquals(new Alternate($url, $locale), $this->url->alternates[0]);
+    }
+
+    /** @test */
+    public function image_can_be_added()
+    {
+        $url = 'defaultUrl';
+
+        $this->url->addImage($url);
+
+        $this->assertEquals(new Image($url), $this->url->images[0]);
+    }
+
+    /** @test */
+    public function many_images_can_be_added()
+    {
+        $url1 = 'defaultUrl1';
+        $url2 = 'defaultUrl2';
+        $url3 = 'defaultUrl3';
+
+        $this->url->addImage($url1);
+        $this->url->addImage($url2);
+        $this->url->addImage($url3);
+
+        $this->assertEquals(new Image($url1), $this->url->images[0]);
+        $this->assertEquals(new Image($url2), $this->url->images[1]);
+        $this->assertEquals(new Image($url3), $this->url->images[2]);
+    }
+
+    /** @test */
+    public function image_can_be_added_with_all_its_set_properties()
+    {
+        $url = 'defaultUrl';
+        $caption = 'defaultCaption';
+        $geo_location = 'defaultGeoLocation';
+        $title = 'defaultTitle';
+        $license = 'defaultLicense';
+
+        $this->url->addImage($url, $caption, $geo_location, $title, $license);
+
+        $this->assertEquals(new Image($url, $caption, $geo_location, $title, $license), $this->url->images[0]);
+    }
+
+    /** @test */
+    public function news_can_be_added()
+    {
+        $name = 'defaultName';
+        $language = 'defaultLanguage';
+        $publicationDate = Carbon::now()->subDay();
+        $title = 'defaultTitle';
+
+        $this->url->addNews($name, $language, $publicationDate, $title);
+
+        $this->assertEquals(new News($name, $language, $publicationDate, $title), $this->url->news[0]);
+    }
+
+    /** @test */
+    public function many_news_can_be_added()
+    {
+        $name1 = 'defaultName';
+        $language1 = 'defaultLanguage';
+        $publicationDate1 = Carbon::now()->subDay();
+        $title1 = 'defaultTitle';
+
+        $name2 = 'defaultName2';
+        $language2 = 'defaultLanguage2';
+        $publicationDate2 = Carbon::now()->subDays(5);
+        $title2 = 'defaultTitle2';
+
+        $this->url->addNews($name1, $language1, $publicationDate1, $title1);
+        $this->url->addNews($name2, $language2, $publicationDate2, $title2);
+
+        $this->assertEquals(new News($name1, $language1, $publicationDate1, $title1), $this->url->news[0]);
+        $this->assertEquals(new News($name2, $language2, $publicationDate2, $title2), $this->url->news[1]);
     }
 
     /** @test */

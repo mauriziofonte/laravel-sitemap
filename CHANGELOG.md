@@ -1,10 +1,15 @@
 # Changelog
 
-All notable changes to `laravel-sitemap` will be documented in this file
+All notable changes to `mauriziofonte/laravel-sitemap` will be documented in this file
 
-## Forked from 6.0.5 - 1.0.0
+## 1.1.0 - 2021-09-23
 
-- Removed constraint for PHP8. Removed support for SitemapGenerator.
+- Add support for Images Sitemap
+- Add support for News Sitemap
+## Forked from spatie/laravel-sitemap v6.0.5 - 1.0.0
+
+- Removed requirement for PHP 8. You can run this package on PHP 7.4
+- Removed support for SitemapGenerator. No more automatic sitemap via crawling :(
 
 ## 6.0.5 - 2021-08-11
 

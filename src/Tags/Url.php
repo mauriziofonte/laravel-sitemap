@@ -15,7 +15,8 @@ class Url extends Tag
     const CHANGE_FREQUENCY_YEARLY = 'yearly';
     const CHANGE_FREQUENCY_NEVER = 'never';
 
-    public string $url;
+    /** @var string */
+    public $url;
 
     /** @var Carbon */
     public $lastModificationDate;
@@ -26,8 +27,14 @@ class Url extends Tag
     /** @var float */
     public $priority = 0.8;
 
-    /** @var \Spatie\Sitemap\Tags\Alternate[] */
+    /** @var \Mfonte\Sitemap\Tags\Alternate[] */
     public $alternates = [];
+
+    /** @var \Mfonte\Sitemap\Tags\Image[] */
+    public $images = [];
+
+    /** @var \Mfonte\Sitemap\Tags\News[] */
+    public $news = [];
 
     public static function create(string $url)
     {
@@ -74,6 +81,29 @@ class Url extends Tag
     public function addAlternate(string $url, string $locale = '')
     {
         $this->alternates[] = new Alternate($url, $locale);
+
+        return $this;
+    }
+
+    public function addImage(
+        string $url,
+        string $caption = '',
+        string $geo_location = '',
+        string $title = '',
+        string $license = ''
+    ) {
+        $this->images[] = new Image($url, $caption, $geo_location, $title, $license);
+
+        return $this;
+    }
+
+    public function addNews(
+        string $name,
+        string $language,
+        ?DateTimeInterface $publication_date,
+        string $title
+    ) {
+        $this->news[] = new News($name, $language, $publication_date, $title);
 
         return $this;
     }

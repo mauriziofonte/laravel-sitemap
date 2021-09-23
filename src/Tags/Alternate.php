@@ -4,9 +4,11 @@ namespace Mfonte\Sitemap\Tags;
 
 class Alternate
 {
-    public string $locale;
+    /** @var string */
+    public $url;
 
-    public string $url;
+    /** @var string */
+    public $locale;
 
     public static function create(string $url, string $locale = '')
     {
@@ -20,16 +22,16 @@ class Alternate
         $this->setLocale($locale);
     }
 
-    public function setLocale(string $locale = '')
+    public function setUrl(string $url = '')
     {
-        $this->locale = $locale;
+        $this->url = $url;
 
         return $this;
     }
 
-    public function setUrl(string $url = '')
+    public function setLocale(string $locale = '')
     {
-        $this->url = $url;
+        $this->locale = $locale;
 
         return $this;
     }

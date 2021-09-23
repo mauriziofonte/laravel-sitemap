@@ -1,33 +1,71 @@
-# Generate sitemaps with ease
+# Generate sitemaps with Laravel, compatible with Images Sitemap and News Sitemap
 
-**Forked from spatie/laravel-sitemap**, to remove support for `SitemapGenerator`, and remove constraint on PHP8.
+[This package has been forked from spatie/laravel-sitemap](https://github.com/spatie/laravel-sitemap), to remove support for `SitemapGenerator`, remove installation requirement for PHP 8, and add support for **Images Sitemaps** and **News Sitemaps**.
 
-This package can generate a sitemap by manually crafting it, via the API provided by this package.
+This package can generate a valid sitemap by writing your own custom logic for the sitemap structure, via the API provided by this package.
 
-You can create your sitemap manually:
+This package requires **PHP 7.4** and **Laravel 8**.
+
+[![Latest Stable Version](https://poser.pugx.org/mfonte/laravel-sitemap/v/stable)](https://packagist.org/packages/mfonte/laravel-sitemap)
+[![Total Downloads](https://poser.pugx.org/mfonte/laravel-sitemap/downloads)](https://packagist.org/packages/mfonte/laravel-sitemap)
+[![Coverage Status](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
+
+## Creating sitemaps
+
+You can only create your sitemap manually:
 
 ```php
 use Carbon\Carbon;
-use Spatie\Sitemap\Sitemap;
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Sitemap;
+use Mfonte\Sitemap\Tags\Url;
 
 Sitemap::create()
 
-    ->add(Url::create('/home')
+    ->add(
+        Url::create('/home')
         ->setLastModificationDate(Carbon::yesterday())
         ->setChangeFrequency(Url::CHANGE_FREQUENCY_YEARLY)
-        ->setPriority(0.1))
+        ->setPriority(0.1)
+        ->addImage('/path/to/image', 'A wonderful Caption')
+        ->addNews('A long story short', 'en', Carbon::yesterday(), 'Sitemaps are this great!')
+    )
 
    ->add(...)
 
    ->writeToFile($path);
 ```
 
-You can also add your models directly by implementing the `\Spatie\Sitemap\Contracts\Sitemapable` interface.
+The sitemap generator can automatically understand what type of items you placed inside the sitemap, and create a valid schema accordingly. This is an example of a sitemap header with images and news:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>\n
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+    <url>
+        <loc>http://localhost/page10</loc>\n
+        <lastmod>2016-01-01T00:00:00+00:00</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>http://localhost/imageUrl</image:loc>
+        </image:image>
+        <news:news>
+            <news:publication_date>2015-12-29</news:publication_date>
+            <news:title>defaultTitle</news:title>
+            <news:publication>
+                <news:name>defaultName</news:name>
+                <news:language>defaultLanguage</news:language>
+            </news:publication>
+        </news:news>
+    </url>
+</urlset>
+```
+
+You can also add your models directly by implementing the `\Mfonte\Sitemap\Contracts\Sitemapable` interface.
 
 ```php
-use Spatie\Sitemap\Contracts\Sitemapable;
-use Spatie\Sitemap\Tags\Url;
+use Mfonte\Sitemap\Contracts\Sitemapable;
+use Mfonte\Sitemap\Tags\Url;
 
 class Post extends Model implements Sitemapable
 {
@@ -40,7 +78,7 @@ class Post extends Model implements Sitemapable
 
 Now you can add a single post model to the sitemap or even a whole collection.
 ```php
-use Spatie\Sitemap\Sitemap;
+use Mfonte\Sitemap\Sitemap;
 
 Sitemap::create()
     ->add($post)
@@ -48,14 +86,6 @@ Sitemap::create()
 ```
 
 This way you can add all your pages super fast without the need to crawl them all.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-sitemap.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-sitemap)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
 
@@ -66,8 +96,6 @@ composer require mfonte/laravel-sitemap
 ```
 
 The package will automatically register itself.
-
-If you want to update your sitemap automatically and frequently you need to perform [some extra steps](https://github.com/spatie/laravel-sitemap#generating-the-sitemap-frequently).
 
 ## Usage
 ### Manually creating a sitemap
@@ -87,7 +115,7 @@ Sitemap::create()
 ### Creating a sitemap index
 You can create a sitemap index:
 ```php
-use Spatie\Sitemap\SitemapIndex;
+use Mfonte\Sitemap\SitemapIndex;
 
 SitemapIndex::create()
     ->add('/pages_sitemap.xml')
@@ -95,11 +123,11 @@ SitemapIndex::create()
     ->writeToFile($sitemapIndexPath);
 ```
 
-You can pass a `Spatie\Sitemap\Tags\Sitemap` object to manually set the `lastModificationDate` property.
+You can pass a `Mfonte\Sitemap\Tags\Sitemap` object to manually set the `lastModificationDate` property.
 
 ```php
-use Spatie\Sitemap\SitemapIndex;
-use Spatie\Sitemap\Tags\Sitemap;
+use Mfonte\Sitemap\SitemapIndex;
+use Mfonte\Sitemap\Tags\Sitemap;
 
 SitemapIndex::create()
     ->add('/pages_sitemap.xml')
@@ -130,39 +158,16 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## Testing
 
-First start the test server in a separate terminal session:
-
-``` bash
-cd tests/server
-./start_server.sh
-```
-
-With the server running you can execute the tests:
-
 ``` bash
 $ composer test
 ```
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security
-
-If you discover any security related issues, please email freek@spatie.be instead of using the issue tracker.
-
 ## Credits
 
+- [Original package published by Spatie](https://github.com/spatie/laravel-sitemap)
 - [Freek Van der Herten](https://github.com/freekmurze)
 - [All Contributors](../../contributors)
 
-## Support us
-
-Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
-
-Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie). 
-All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
-
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information. **This package has been forked from https://github.com/spatie/laravel-sitemap and the relative license file has been migrated into this repository as-it-is**.
