@@ -1,8 +1,7 @@
 {
     "name": "mfonte/laravel-sitemap",
-    "description": "Create and generate sitemaps with hand-made logic. Compatible with Google Image and Google News sitemap.",
+    "description": "Laravel Sitemap Generator. Supports SitemapIndex, Images Sitemap and News Sitemap.",
     "keywords": [
-        "spatie",
         "laravel-sitemap",
         "google image sitemap",
         "google news sitemap"
