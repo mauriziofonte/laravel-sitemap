@@ -4,12 +4,23 @@
 
 This package can generate a valid sitemap by writing your own custom logic for the sitemap structure, via the API provided by this package.
 
-This package requires **PHP 7.4** and **Laravel 8**.
+> Heads up! This package requires _PHP 8.1_ minimum and _Laravel 9_ or _Laravel 10_. 
+> For **PHP 7.4 and Laravel 8 compatibility** refer to **v1.1**
 
 [![Latest Stable Version](https://poser.pugx.org/mfonte/laravel-sitemap/v/stable)](https://packagist.org/packages/mfonte/laravel-sitemap)
 [![Total Downloads](https://poser.pugx.org/mfonte/laravel-sitemap/downloads)](https://packagist.org/packages/mfonte/laravel-sitemap)
 [![Coverage Status](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
+
+## Installation
+
+For Laravel 9 or 10 (min. PHP 8.1):
+
+`composer require mfonte/laravel-sitemap`
+
+For Laravel 8:
+
+`composer require mfonte/laravel-sitemap "^1.1"`
 
 ## Creating sitemaps
 
