@@ -41,7 +41,7 @@ class Url extends Tag
         return new static($url);
     }
 
-    public function __construct(string $url)
+    final public function __construct(string $url)
     {
         $this->url = $url;
 
@@ -114,7 +114,7 @@ class Url extends Tag
     }
 
     /**
-     * @param integer|null $index
+     * @param int|null $index
      *
      * @return array|string|null
      */

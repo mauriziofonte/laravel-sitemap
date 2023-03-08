@@ -1,6 +1,5 @@
 <?php
-
-$finder = Symfony\Component\Finder\Finder::create()
+$finder = PhpCsFixer\Finder::create()
     ->in([
         __DIR__ . '/src',
         __DIR__ . '/tests',
@@ -10,7 +9,8 @@ $finder = Symfony\Component\Finder\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-return (new PhpCsFixer\Config())
+$config = new PhpCsFixer\Config();
+$config
     ->setRules([
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
@@ -38,3 +38,5 @@ return (new PhpCsFixer\Config())
         'single_trait_insert_per_statement' => true,
     ])
     ->setFinder($finder);
+
+return $config;

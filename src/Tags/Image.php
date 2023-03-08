@@ -29,7 +29,7 @@ class Image
         return new static($url, $caption, $geo_location, $title, $license);
     }
 
-    public function __construct(
+    final public function __construct(
         string $url,
         string $caption = '',
         string $geo_location = '',

@@ -28,7 +28,7 @@ class News
         return new static($name, $language, $publication_date, $title);
     }
 
-    public function __construct(
+    final public function __construct(
         string $name,
         string $language,
         ?DateTimeInterface $publication_date,
@@ -58,7 +58,6 @@ class News
 
         return $this;
     }
-
     
     public function setPublicationDate(?DateTimeInterface $publication_date = null)
     {

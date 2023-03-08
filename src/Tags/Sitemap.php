@@ -7,7 +7,8 @@ use DateTimeInterface;
 
 class Sitemap extends Tag
 {
-    public string $url;
+    /** @var string */
+    public $url;
 
     /** @var Carbon */
     public $lastModificationDate;
@@ -17,7 +18,7 @@ class Sitemap extends Tag
         return new static($url);
     }
 
-    public function __construct(string $url)
+    final public function __construct(string $url)
     {
         $this->url = $url;
 

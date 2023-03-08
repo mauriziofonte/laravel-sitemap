@@ -1,7 +1,8 @@
 build
 composer.lock
 docs
-vendor
+vendor/
+.test/
 .php_cs.cache
 .phpunit.result.cache
 .php-cs-fixer.cache

@@ -3,9 +3,9 @@
 namespace Mfonte\Sitemap\Test;
 
 use Carbon\Carbon;
+use Mfonte\Sitemap\Tags\Alternate;
 use Mfonte\Sitemap\Tags\Image;
 use Mfonte\Sitemap\Tags\News;
-use Mfonte\Sitemap\Tags\Alternate;
 use Mfonte\Sitemap\Tags\Url;
 
 class UrlTest extends TestCase

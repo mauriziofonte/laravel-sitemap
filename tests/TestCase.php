@@ -3,8 +3,8 @@
 namespace Mfonte\Sitemap\Test;
 
 use Carbon\Carbon;
-use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Mfonte\Sitemap\SitemapServiceProvider;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Spatie\Snapshots\MatchesSnapshots;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 

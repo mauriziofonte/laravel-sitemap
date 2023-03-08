@@ -12,12 +12,16 @@ use Mfonte\Sitemap\Tags\Url;
 
 class Sitemap implements Responsable, Renderable
 {
-    /** @var \Spatie\Sitemap\Tags\Url[] */
+    /** @var \Mfonte\Sitemap\Tags\Url[] */
     protected $tags = [];
 
     public static function create()
     {
         return new static();
+    }
+
+    final public function __construct()
+    {
     }
 
     /**
@@ -68,14 +72,14 @@ class Sitemap implements Responsable, Renderable
     public function hasImages() : bool
     {
         return (bool) collect($this->tags)->first(function (Tag $tag) {
-            return $tag->getType() === 'url' && !empty($tag->images);
+            return $tag->getType() === 'url' && ! empty($tag->images);
         });
     }
 
     public function hasNews() : bool
     {
         return (bool) collect($this->tags)->first(function (Tag $tag) {
-            return $tag->getType() === 'url' && !empty($tag->news);
+            return $tag->getType() === 'url' && ! empty($tag->news);
         });
     }
 

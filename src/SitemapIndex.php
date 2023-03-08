@@ -11,12 +11,16 @@ use Mfonte\Sitemap\Tags\Tag;
 
 class SitemapIndex implements Responsable, Renderable
 {
-    /** @var \Spatie\Sitemap\Tags\Sitemap[] */
+    /** @var \Mfonte\Sitemap\Tags\Sitemap[] */
     protected array $tags = [];
 
     public static function create()
     {
         return new static();
+    }
+
+    final public function __construct()
+    {
     }
 
     /**
