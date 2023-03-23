@@ -1,15 +1,28 @@
-# Generate sitemaps with Laravel, compatible with Images Sitemap and News Sitemap
+# Generate sitemaps with Laravel (or for a Non-Laravel project), compatible with Images Sitemap and News Sitemap
 
 [This package has been forked from spatie/laravel-sitemap](https://github.com/spatie/laravel-sitemap), to remove support for `SitemapGenerator`, remove installation requirement for PHP 8, and add support for **Images Sitemaps** and **News Sitemaps**.
 
+Additionally, this package adds support for installation **outside a Laravel Project**. See **Using this package outside Laravel** section.
+
 This package can generate a valid sitemap by writing your own custom logic for the sitemap structure, via the API provided by this package.
 
-This package requires **PHP 7.4** and **Laravel 8**.
+> Heads up! This package requires _Laravel 9_ or _Laravel 10_
+> For **PHP 7.4 and Laravel 8 compatibility** refer to __v1.1.*__
 
 [![Latest Stable Version](https://poser.pugx.org/mfonte/laravel-sitemap/v/stable)](https://packagist.org/packages/mfonte/laravel-sitemap)
 [![Total Downloads](https://poser.pugx.org/mfonte/laravel-sitemap/downloads)](https://packagist.org/packages/mfonte/laravel-sitemap)
 [![Coverage Status](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauriziofonte/laravel-sitemap/)
+
+## Installation
+
+For Laravel 9 or 10, or for a non-Laravel-based project running on **PHP >= 8.0**
+
+`composer require mfonte/laravel-sitemap`
+
+For Laravel 8, or for a non-Laravel-based project running on **PHP >= 7.4 && < 8.0**
+
+`composer require mfonte/laravel-sitemap "^1.1"`
 
 ## Creating sitemaps
 
@@ -21,7 +34,6 @@ use Mfonte\Sitemap\Sitemap;
 use Mfonte\Sitemap\Tags\Url;
 
 Sitemap::create()
-
     ->add(
         Url::create('/home')
         ->setLastModificationDate(Carbon::yesterday())
@@ -30,9 +42,7 @@ Sitemap::create()
         ->addImage('/path/to/image', 'A wonderful Caption')
         ->addNews('A long story short', 'en', Carbon::yesterday(), 'Sitemaps are this great!')
     )
-
    ->add(...)
-
    ->writeToFile($path);
 ```
 
@@ -77,6 +87,7 @@ class Post extends Model implements Sitemapable
 ```
 
 Now you can add a single post model to the sitemap or even a whole collection.
+
 ```php
 use Mfonte\Sitemap\Sitemap;
 
@@ -87,33 +98,10 @@ Sitemap::create()
 
 This way you can add all your pages super fast without the need to crawl them all.
 
-## Installation
+## Creating a sitemap index
 
-First, install the package via composer:
-
-``` bash
-composer require mfonte/laravel-sitemap
-```
-
-The package will automatically register itself.
-
-## Usage
-### Manually creating a sitemap
-
-You can also create a sitemap fully manual:
-
-```php
-use Carbon\Carbon;
-
-Sitemap::create()
-   ->add('/page1')
-   ->add('/page2')
-   ->add(Url::create('/page3')->setLastModificationDate(Carbon::create('2016', '1', '1')))
-   ->writeToFile($sitemapPath);
-```
-
-### Creating a sitemap index
 You can create a sitemap index:
+
 ```php
 use Mfonte\Sitemap\SitemapIndex;
 
@@ -150,6 +138,34 @@ the generated sitemap index will look similar to this:
       <lastmod>2015-12-31T00:00:00+00:00</lastmod>
    </sitemap>
 </sitemapindex>
+```
+
+## Using this package outside Laravel
+
+The same instructions above apply, except for:
+
+1. You **can not** use `Contracts\Sitemapable` to extend a _Model_ (you're not on Laravel, aren't you?)
+2. You **have to** use the `Sitemap::render()`, `Sitemap::writeToFile()`, `SitemapIndex::render()` and `SitemapIndex::writeToFile()` via providing the extra boolean flag `$nativeRenderer = true`
+3. You **can not** use `Sitemap::writeToDisk()`, `Sitemap::toResponse()`, `SitemapIndex::writeToDisk()` and `SitemapIndex::toResponse()`
+
+So, for example, a basic approach may be:
+
+```php
+use Carbon\Carbon;
+use Mfonte\Sitemap\Sitemap;
+use Mfonte\Sitemap\Tags\Url;
+
+$sitemapStream = Sitemap::create()
+                    ->add(
+                        Url::create('/home')
+                        ->setLastModificationDate(Carbon::yesterday())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_YEARLY)
+                        ->setPriority(0.1)
+                        ->addImage('/path/to/image', 'A wonderful Caption')
+                        ->addNews('A long story short', 'en', Carbon::yesterday(), 'Sitemaps are this great!')
+                    )
+                ->add(...)
+                ->render(true); // note the "true" on the render() method.
 ```
 
 ## Changelog
