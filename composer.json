@@ -4,7 +4,8 @@
     "keywords": [
         "laravel-sitemap",
         "google image sitemap",
-        "google news sitemap"
+        "google news sitemap",
+        "google sitemap index"
     ],
     "homepage": "https://github.com/mauriziofonte/laravel-sitemap",
     "license": "MIT",

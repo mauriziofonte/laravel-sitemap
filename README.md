@@ -140,7 +140,7 @@ the generated sitemap index will look similar to this:
 </sitemapindex>
 ```
 
-## Using this package outside Laravel
+## Usage outside of Laravel
 
 The same instructions above apply, except for:
 
@@ -155,17 +155,16 @@ use Carbon\Carbon;
 use Mfonte\Sitemap\Sitemap;
 use Mfonte\Sitemap\Tags\Url;
 
-$sitemapStream = Sitemap::create()
-                    ->add(
-                        Url::create('/home')
-                        ->setLastModificationDate(Carbon::yesterday())
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_YEARLY)
-                        ->setPriority(0.1)
-                        ->addImage('/path/to/image', 'A wonderful Caption')
-                        ->addNews('A long story short', 'en', Carbon::yesterday(), 'Sitemaps are this great!')
-                    )
-                ->add(...)
-                ->render(true); // note the "true" on the render() method.
+$sitemapStream = Sitemap::create()->add(
+    Url::create('/home')
+        ->setLastModificationDate(Carbon::yesterday())
+        ->setChangeFrequency(Url::CHANGE_FREQUENCY_YEARLY)
+        ->setPriority(0.1)
+        ->addImage('/path/to/image', 'A wonderful Caption')
+        ->addNews('A long story short', 'en', Carbon::yesterday(), 'Sitemaps are this great!')
+)
+->add(...)
+->render(nativeRenderer: true);
 ```
 
 ## Changelog

@@ -15,6 +15,7 @@ class NativeRenderer
      * @var array
      */
     private array $params;
+    private string $tempFile;
 
     public static function instance(array $params) : self
     {
@@ -24,6 +25,7 @@ class NativeRenderer
     public function __construct(array $params)
     {
         $this->params = $params;
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'mfonte_sitemap_nativerenderer_' . sha1(uniqid()));
     }
 
     /**
@@ -38,11 +40,11 @@ class NativeRenderer
         try {
             switch($type) {
                 case 'sitemap':
-                    $xml = $this->sitemapTemplate();
+                    $this->renderSitemap();
 
                     break;
                 case 'sitemapIndex':
-                    $xml = $this->sitemapIndexTemplate();
+                    $this->renderSitemapIndex();
 
                     break;
                 default:
@@ -56,136 +58,234 @@ class NativeRenderer
             throw new \Exception('Error while rendering the xml: ' . $e->getMessage());
         }
         
-        if (! class_exists('\DOMDocument')) {
-            return $xml;
+        // if the tidy extension is not available, return the xml as it was rendered natively.
+        if (! function_exists('tidy_parse_file')) {
+            return $this->asString();
         }
 
-        $dom = new \DOMDocument();
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = true;
-        $dom->loadXML($xml, LIBXML_NONET | LIBXML_NOWARNING | LIBXML_PARSEHUGE | LIBXML_NOERROR);
-        $out = $dom->saveXML($dom->documentElement);
+        // if the tidy extension is available, format the xml with tidy
+        $tidyInstance = tidy_parse_file($this->tempFile, [
+            'indent'         => true,
+            'output-xml'     => true,
+            'input-xml'      => true,
+            'wrap'           => 0,
+            'indent-spaces'  => 2,
+            'newline'        => 'LF',
+        ]);
 
-        if ($out === false) {
-            throw new \Exception('DOMDocument: Error while prettifying the xml');
+        if ($tidyInstance === false) {
+            throw new \Exception('Tidy: Error while loading the Sitemap xml with tidy_parse_file()');
         }
 
-        return $out;
+        if ($tidyInstance->errorBuffer) {
+            throw new \Exception('Tidy: Errors while loading the Sitemap xml with tidy_parse_file(): ' . "\n" . $tidyInstance->errorBuffer);
+        }
+
+        $formatted = tidy_clean_repair(object: $tidyInstance);
+        if ($formatted === false) {
+            throw new \Exception('Tidy: Error while cleaning the Sitemap xml');
+        }
+
+        // save the formatted xml back to the temporary file
+        file_put_contents($this->tempFile, (string) $tidyInstance);
+
+        return $this->asString();
     }
 
-    private function sitemapIndexTemplate() : string
+    /**
+     * Renders the sitemap index
+     */
+    private function renderSitemapIndex()
     {
-        $template = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $template .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $this->append('<?xml version="1.0" encoding="UTF-8"?>');
+        $this->append('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
 
         foreach ($this->params['tags'] as $tag) {
             /** @var Sitemap $tag */
             
-            $template .= '<sitemap>';
+            $this->append('<sitemap>', 1);
             if (! empty($tag->url)) {
-                $template .= '<loc>' . url($tag->url) . '</loc>';
+                $this->append('<loc>' . $this->format(url($tag->url)) . '</loc>', 2);
             }
 
             if (! empty($tag->lastModificationDate)) {
-                $template .= '<lastmod>' . $tag->lastModificationDate->format(DateTime::ATOM) . '</lastmod>';
+                $this->append('<lastmod>' . $tag->lastModificationDate->format(DateTime::ATOM) . '</lastmod>', 2);
             }
 
-            $template .= '</sitemap>';
+            $this->append('</sitemap>', 1);
         }
 
-        $template .= '</sitemapindex>';
-
-        return $template;
+        $this->append('</sitemapindex>');
     }
 
-    private function sitemapTemplate() : string
+    /**
+     * Renders the sitemap
+     */
+    private function renderSitemap()
     {
-        $template = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $template .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"';
+        $this->append('<?xml version="1.0" encoding="UTF-8"?>');
+        $this->append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"', 0, false);
         if ($this->params['hasImages']) {
-            $template .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"';
+            $this->append(' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"', 0, false);
         }
         if ($this->params['hasNews']) {
-            $template .= ' xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"';
+            $this->append(' xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"', 0, false);
         }
-        $template .= '>';
+        $this->append('>', 0);
 
         foreach ($this->params['tags'] as $tag) {
-            $template .= $this->urlTemplate($tag);
+            $this->renderUrl($tag);
         }
 
-        $template .= '</urlset>';
-
-        return $template;
+        $this->append('</urlset>', 0, false);
     }
 
-    private function urlTemplate(Url $tag) : string
+    /**
+     * Renders a Url tag
+     *
+     * @param Url $tag
+     */
+    private function renderUrl(Url $tag)
     {
-        $template = '<url>';
+        $this->append('<url>', 1);
         if (! empty($tag->url)) {
-            $template .= '<loc>' . url($tag->url) . '</loc>';
+            $this->append('<loc>' . $this->format(url($tag->url)) . '</loc>', 2);
         }
         if (count($tag->alternates)) {
             foreach ($tag->alternates as $alternate) {
-                $template .= '<xhtml:link rel="alternate" hreflang="' . $alternate->locale . '" href="' . url($alternate->url) . '" />';
+                $this->append('<xhtml:link rel="alternate" hreflang="' . $this->format($alternate->locale) . '" href="' . $this->format(url($alternate->url)) . '" />', 2);
             }
         }
         if (! empty($tag->lastModificationDate)) {
-            $template .= '<lastmod>' . $tag->lastModificationDate->format(DateTime::ATOM) . '</lastmod>';
+            $this->append('<lastmod>' . $tag->lastModificationDate->format(DateTime::ATOM) . '</lastmod>', 2);
         }
         if (! empty($tag->changeFrequency)) {
-            $template .= '<changefreq>' . $tag->changeFrequency . '</changefreq>';
+            $this->append('<changefreq>' . $this->format($tag->changeFrequency) . '</changefreq>', 2);
         }
         if (! empty($tag->priority)) {
-            $template .= '<priority>' . number_format($tag->priority, 1) . '</priority>';
+            $this->append('<priority>' . number_format($tag->priority, 1) . '</priority>', 2);
         }
         if (count($tag->images)) {
             foreach ($tag->images as $image) {
                 if (! empty($image->url)) {
-                    $template .= '<image:image>';
-                    $template .= '<image:loc>' . url($image->url) . '</image:loc>';
+                    $this->append('<image:image>', 2);
+                    $this->append('<image:loc>' . url($image->url) . '</image:loc>', 3);
                     if (! empty($image->caption)) {
-                        $template .= '<image:caption>' . $image->caption . '</image:caption>';
+                        $this->append('<image:caption>' . $this->format($image->caption) . '</image:caption>', 3);
                     }
                     if (! empty($image->geo_location)) {
-                        $template .= '<image:geo_location>' . $image->geo_location . '</image:geo_location>';
+                        $this->append('<image:geo_location>' . $this->format($image->geo_location) . '</image:geo_location>', 3);
                     }
                     if (! empty($image->title)) {
-                        $template .= '<image:title>' . $image->title . '</image:title>';
+                        $this->append('<image:title>' . $this->format($image->title) . '</image:title>', 3);
                     }
                     if (! empty($image->license)) {
-                        $template .= '<image:license>' . $image->license . '</image:license>';
+                        $this->append('<image:license>' . $this->format($image->license) . '</image:license>', 3);
                     }
-                    $template .= '</image:image>';
+                    $this->append('</image:image>', 2);
                 }
             }
         }
         if (count($tag->news)) {
             foreach ($tag->news as $new) {
-                $template .= '<news:news>';
+                $this->append('<news:news>', 2);
                 if (! empty($new->publication_date)) {
-                    $template .= '<news:publication_date>' . $new->publication_date->format('Y-m-d') . '</news:publication_date>';
+                    $this->append('<news:publication_date>' . $new->publication_date->format('Y-m-d') . '</news:publication_date>', 3);
                 }
                 if (! empty($new->title)) {
-                    $template .= '<news:title>' . $new->title . '</news:title>';
+                    $this->append('<news:title>' . $this->format($new->title) . '</news:title>', 3);
                 }
                 if (! empty($new->name) || ! empty($new->language)) {
-                    $template .= '<news:publication>';
+                    $this->append('<news:publication>', 3);
                     if (! empty($new->name)) {
-                        $template .= '<news:name>' . $new->name . '</news:name>';
+                        $this->append('<news:name>' . $this->format($new->name) . '</news:name>', 4);
                     }
 
                     if (! empty($new->language)) {
-                        $template .= '<news:language>' . $new->language . '</news:language>';
+                        $this->append('<news:language>' . $this->format($new->language) . '</news:language>', 4);
                     }
-                    $template .= '</news:publication>';
+                    $this->append('</news:publication>', 3);
                 }
-                $template .= '</news:news>';
+                $this->append('</news:news>', 2);
             }
         }
 
-        $template .= '</url>';
+        $this->append('</url>', 1);
+    }
 
-        return $template;
+    /**
+     * Returns the contents of the temporary file as a string
+     *
+     * @return string
+     */
+    private function asString() : string
+    {
+        if (!is_file($this->tempFile)) {
+            throw new \Exception('The generated Sitemap temporary file does not exist');
+        }
+
+        if (!is_readable($this->tempFile)) {
+            throw new \Exception('The generated Sitemap temporary file is not readable');
+        }
+
+        $contents = file_get_contents($this->tempFile);
+        unlink($this->tempFile);
+
+        if ($contents === false) {
+            throw new \Exception('Error while reading the generated Sitemap temporary file');
+        }
+        if (empty($contents)) {
+            throw new \Exception('The generated Sitemap temporary file is empty');
+        }
+
+        return $contents;
+    }
+
+    /**
+     * Appends content to the temporary file
+     *
+     * @param string $content
+     * @param string $indentLevel
+     * @param string $newline
+     */
+    private function append(string $content, int $indentLevel = 0, bool $newline = true)
+    {
+        if (!is_file($this->tempFile)) {
+            @touch($this->tempFile);
+        }
+
+        if (!is_file($this->tempFile)) {
+            throw new \Exception('The temporary file does not exist');
+        }
+
+        if (!is_writable($this->tempFile)) {
+            throw new \Exception('The temporary file is not writable');
+        }
+
+        $content = ($indentLevel) ? str_repeat(' ', $indentLevel * 2) . $content : $content;
+        $content = ($newline) ? $content . "\n" : $content;
+        $result = file_put_contents($this->tempFile, $content, FILE_APPEND);
+
+        if ($result === false) {
+            throw new \Exception('Error while writing to the temporary file');
+        }
+    }
+
+    /**
+     * Formats a tag text so that it does not contain invalid characters for the XML format.
+     *
+     * @param string|null $text
+     *
+     * @return string
+     */
+    private function format(?string $text = null) : string
+    {
+        $text = html_entity_decode($text ?? '', ENT_QUOTES | ENT_IGNORE, 'UTF-8');
+
+        // remove any occurrence of UTF-8 encoding of a NO-BREAK SPACE codepoint, that we have decoded above
+        $text = str_replace(chr(194).chr(160), ' ', $text);
+        $text = trim(preg_replace('/\s\s+/', ' ', $text));
+
+        return trim(htmlspecialchars($text, ENT_QUOTES | ENT_IGNORE, 'UTF-8'));
     }
 }
