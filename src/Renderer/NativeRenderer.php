@@ -81,7 +81,7 @@ class NativeRenderer
             throw new \Exception('Tidy: Errors while loading the Sitemap xml with tidy_parse_file(): ' . "\n" . $tidyInstance->errorBuffer);
         }
 
-        $formatted = tidy_clean_repair(object: $tidyInstance);
+        $formatted = tidy_clean_repair($tidyInstance);
         if ($formatted === false) {
             throw new \Exception('Tidy: Error while cleaning the Sitemap xml');
         }
